@@ -4,14 +4,23 @@ import json
 
 app = FastAPI()
 krx = mu.get_mongodb_collection('krx')
+krx_storage = mu.get_mongodb_collection('krx_storage')
 
-def stock(symbol):
-    res = krx.find_one({'code':symbol})
-    with open(f'{symbol}.txt', 'w') as f:
-        f.write(str(res['_id']))
-    return  res['data'][0]
 
-@app.get("/stock/")
-async def get_stock(symbol: str):
-    return stock(symbol)
+@app.get('/')
+async def home():
+    return {'msg': 'Hi'}
+
+
+@app.get("/krx/stock/read/")
+async def krx_read(symbol: str):
+    res = krx.find_one({'code': symbol})
+    return {'data': res['data']}
+
+
+@app.get("/krx/stock/readall/")
+async def krx_read_allr(date: str):
+    res = krx_storage.find_one({'date': date})
+    return {'data': res['data']}
+
 
