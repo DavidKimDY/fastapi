@@ -1,10 +1,13 @@
-from fastapi import FastAPI
 import mongodb_util as mu
-import json
+
+from fastapi import FastAPI
 
 app = FastAPI()
 krx = mu.get_mongodb_collection('krx')
 krx_storage = mu.get_mongodb_collection('krx_storage')
+
+with open('.apikey', 'r') as f:
+    TEMP_API_KEY = f.read().rstrip('\n')
 
 
 @app.get('/')
@@ -13,14 +16,22 @@ async def home():
 
 
 @app.get("/krx/stock/read/")
-async def krx_read(symbol: str):
+async def krx_read(symbol: str, apikey: str):
+    if apikey != TEMP_API_KEY:
+        return {'msg' : 'Wrong Api key'}
     res = krx.find_one({'code': symbol})
+    if res is None:
+        return {'msg': 'No data in database'} 
     return {'data': res['data']}
 
 
 @app.get("/krx/stock/readall/")
-async def krx_read_allr(date: str):
+async def krx_read_allr(date: str, apikey: str):
+    if apikey != TEMP_API_KEY:
+        return {'msg' : 'Wrong Api key'}
     res = krx_storage.find_one({'date': date})
+    if res is None:
+        return {'msg': 'No data in database'} 
     return {'data': res['data']}
 
 
