@@ -1,3 +1,5 @@
+import time
+
 import mongodb_util as mu
 
 from fastapi import FastAPI
@@ -17,9 +19,13 @@ async def home():
 
 @app.get("/krx/stock/read/")
 async def krx_read(symbol: str, apikey: str):
+    now = time.time()
+    print('krx_read_start =', now)
     if apikey != TEMP_API_KEY:
         return {'msg' : 'Wrong Api key'}
+    print('before_mdb_requests = ', now)
     res = krx.find_one({'code': symbol})
+    print('after_mdb_requests = ', time.time())
     if res is None:
         return {'msg': 'No data in database'} 
     return {'data': res['data']}
