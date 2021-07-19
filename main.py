@@ -37,7 +37,7 @@ async def krx_read(symbol: str, apikey: str):
     log(f'{apikey} - krx_read ok, symbol : {symbol} ')
     return {'data': res['data']}
 
-@app.get("/krx/stock/readall/")
+@app.get("/krx/stock/read-date/")
 async def krx_read_date(date: str, apikey: str):
     if apikey not in TEMP_API_KEYS:
         log(f'{apikey} - wrong Api key')
@@ -53,19 +53,3 @@ async def krx_read_date(date: str, apikey: str):
 def log_test(msg, n):
     with open(f'test_log1/log_{n}.txt', 'a') as f:
         f.write(msg + '\n')
-'''
-@app.get("/test/")
-async def test(symbol: str, number: str ):
-    log_test(f'{symbol} : Before requests to MongoDB server', number)
-    res = krx.find_one({'code': symbol})
-    log_test(f'{symbol} : After gets response from MongoDB server', number)
-    return {'data': res['data']}
-
-@app.get("/krx/stock/read/")
-async def krx_read(symbol: str, apikey: str):
-    number = apikey
-    log_test(f'{symbol} : Before requests to MongoDB server', number)
-    res = krx.find_one({'code': symbol})
-    log_test(f'{symbol} : After gets response from MongoDB server', number)
-    return {'data': res['data']}
-'''
