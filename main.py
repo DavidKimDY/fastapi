@@ -6,8 +6,8 @@ import mongodb_util as mu
 from fastapi import FastAPI
 
 app = FastAPI()
-krx = mu.get_mongodb_collection('krx')
-krx_storage = mu.get_mongodb_collection('krx_storage')
+krx_stock = mu.get_mongodb_collection('krx_stock')
+krx_storage = mu.get_mongodb_collection('krx_stock_date')
 
 with open('.apikey', 'r') as f:
     TEMP_API_KEYS = f.read().rstrip('\n').split()
@@ -22,9 +22,9 @@ def time_stamp():
 
 @app.get('/')
 async def home():
-    time.sleep(10)
     return {'msg': 'Hi'}
 
+"""
 @app.get("/krx/stock/read/")
 async def krx_read(symbol: str, apikey: str):
     if apikey not in TEMP_API_KEYS:
@@ -36,6 +36,20 @@ async def krx_read(symbol: str, apikey: str):
         return {'msg': 'No data in database'} 
     log(f'{apikey} - krx_read ok, symbol : {symbol} ')
     return {'data': res['data']}
+"""
+
+@app.get("/krx/stock/read/")
+def krx_read(symbol: str, start: str, end:str, apikey:str):
+    if apikey not in TEMP_API_KEYS:
+        log(f'{apikey} -  Wrong Api key')
+        return {'msg' : 'Wrong Api key'}
+    res = krx_stock.find({'symbol': symbol, 'date' : {'$gte': start, '$lte': end}}, {'_id':0})
+    if res is None:
+        log(f'{apikey} - No data in database. symbol : {symbol}, start : {start}, end : {end}')
+        return {'msg': 'No data in database'}
+    log(f'{apikey} - krx_read ok, symbol : {symbol}, start : {start}, end : {end}')
+    return {'data': list(res)}
+
 
 @app.get("/krx/stock/read-date/")
 async def krx_read_date(date: str, apikey: str):
